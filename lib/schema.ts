@@ -7,6 +7,7 @@ import type {
   ItineraryDoc,
   ThingToDoDoc,
   CompareDoc,
+  TransportDoc,
   Frontmatter,
 } from "./content";
 
@@ -62,6 +63,48 @@ export const speakableNode = () => ({
   "@type": "SpeakableSpecification",
   cssSelector: ["[data-speakable]"],
 });
+
+export const transportNode = (doc: { frontmatter: TransportDoc; url: string }) => {
+  const fm = doc.frontmatter;
+  const city = fm.from ? getCityEntity(fm.from) : undefined;
+  const arrivalCity = fm.to ? getCityEntity(fm.to) : undefined;
+  const base: Record<string, unknown> = {
+    "@type": "Article",
+    headline: fm.h1 ?? fm.title,
+    description: fm.description,
+    image: fm.heroImage ? [absoluteUrl(fm.heroImage)] : [absoluteUrl(SITE.defaultOgImage)],
+    datePublished: fm.published,
+    dateModified: fm.updated ?? fm.published,
+    author: { "@type": "Person", name: fm.author },
+    publisher: { "@id": `${SITE.url}#org` },
+    mainEntityOfPage: absoluteUrl(doc.url),
+    inLanguage: "en",
+    speakable: speakableNode(),
+    articleSection: "Transport",
+  };
+  // Route articles: annotate with about.TravelAction so AI engines and rich
+  // results understand "from X to Y" semantics without inventing a schema.
+  if (fm.category === "route" && city && arrivalCity) {
+    base.about = {
+      "@type": "TravelAction",
+      fromLocation: {
+        "@type": "City",
+        name: city.name,
+        address: { "@type": "PostalAddress", addressCountry: "VN" },
+      },
+      toLocation: {
+        "@type": "City",
+        name: arrivalCity.name,
+        address: { "@type": "PostalAddress", addressCountry: "VN" },
+      },
+    };
+  }
+  // Brand articles: declare the Organization the article is about.
+  if (fm.category === "brand" && fm.operator) {
+    base.about = { "@type": "Organization", name: fm.operator };
+  }
+  return base;
+};
 
 export const articleNode = (doc: {
   frontmatter: GuideDoc | CompareDoc;
@@ -214,6 +257,9 @@ export const buildPageGraph = (
       break;
     case "compare":
       nodes.push(articleNode({ frontmatter: fm, url }));
+      break;
+    case "transport":
+      nodes.push(transportNode({ frontmatter: fm, url }));
       break;
   }
   return buildGraph(nodes);

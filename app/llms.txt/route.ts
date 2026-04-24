@@ -10,6 +10,7 @@ export function GET() {
     Destinations: [],
     "Day Trips": [],
     Itineraries: [],
+    Transport: [],
     Guides: [],
     Comparisons: [],
   };
@@ -27,6 +28,9 @@ export function GET() {
         break;
       case "itinerary":
         sections.Itineraries.push(line);
+        break;
+      case "transport":
+        sections.Transport.push(line);
         break;
       case "guide":
         sections.Guides.push(line);

@@ -43,7 +43,7 @@ export const dayTripSchema = z.object({
   type: z.literal("day-trip"),
   ...baseFields,
   city: z.enum(CITY_SLUGS as [string, ...string[]]),
-  duration: z.string().regex(/^PT\d+H(\d+M)?$/).optional(),
+  duration: z.string().regex(/^PT(?:\d+H(?:\d+M)?|\d+M)$/).optional(),
   priceFrom: priceSchema.optional(),
   startLocation: z.string().optional(),
   endLocation: z.string().optional(),
@@ -76,6 +76,26 @@ export const compareSchema = z.object({
   b: z.string(),
 });
 
+export const transportSchema = z.object({
+  type: z.literal("transport"),
+  ...baseFields,
+  // Drives hub grouping: pillar=overview, brand=carrier/operator,
+  // route=city-pair, mode=type of transport
+  category: z.enum(["pillar", "brand", "route", "mode"]),
+  // Brand articles (e.g. Vietnam Airlines, Vietjet, Futa)
+  operator: z.string().optional(),
+  // Route articles (city-pair). Validated against CitySlug so they can
+  // cross-reference destination pages.
+  from: z.enum(CITY_SLUGS as [string, ...string[]]).optional(),
+  to: z.enum(CITY_SLUGS as [string, ...string[]]).optional(),
+  // Primary mode covered in the article
+  mode: z
+    .enum(["flight", "bus", "train", "car", "motorbike", "ferry", "mixed"])
+    .optional(),
+  duration: z.string().regex(/^PT(?:\d+H(?:\d+M)?|\d+M)$/).optional(),
+  priceFrom: priceSchema.optional(),
+});
+
 export const contentSchema = z.discriminatedUnion("type", [
   citySchema,
   dayTripSchema,
@@ -83,6 +103,7 @@ export const contentSchema = z.discriminatedUnion("type", [
   itinerarySchema,
   guideSchema,
   compareSchema,
+  transportSchema,
 ]);
 
 export type Frontmatter = z.infer<typeof contentSchema>;
@@ -92,6 +113,7 @@ export type ThingToDoDoc = z.infer<typeof thingToDoSchema>;
 export type ItineraryDoc = z.infer<typeof itinerarySchema>;
 export type GuideDoc = z.infer<typeof guideSchema>;
 export type CompareDoc = z.infer<typeof compareSchema>;
+export type TransportDoc = z.infer<typeof transportSchema>;
 
 export interface ContentDoc<T extends Frontmatter = Frontmatter> {
   frontmatter: T;
@@ -164,6 +186,14 @@ export const getItinerary = (slug: string): ContentDoc<ItineraryDoc> | undefined
 export const getCompare = (pair: string): ContentDoc<CompareDoc> | undefined =>
   getByType("compare").find((d) => d.frontmatter.slug === pair);
 
+export const getTransport = (slug: string): ContentDoc<TransportDoc> | undefined =>
+  getByType("transport").find((d) => d.frontmatter.slug === slug);
+
+export const getTransportByCategory = (
+  category: TransportDoc["category"],
+): Array<ContentDoc<TransportDoc>> =>
+  getByType("transport").filter((d) => d.frontmatter.category === category);
+
 export const urlFor = (fm: Frontmatter): string => {
   switch (fm.type) {
     case "city":
@@ -178,5 +208,7 @@ export const urlFor = (fm: Frontmatter): string => {
       return `/guides/${fm.slug}/`;
     case "compare":
       return `/compare/${fm.slug}/`;
+    case "transport":
+      return `/transport/${fm.slug}/`;
   }
 };
