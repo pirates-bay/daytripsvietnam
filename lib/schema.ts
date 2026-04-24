@@ -1,5 +1,5 @@
 import { SITE, absoluteUrl } from "./site";
-import { getCity as getCityEntity } from "./entities";
+import { getAuthor, getCity as getCityEntity } from "./entities";
 import type {
   CityDoc,
   DayTripDoc,
@@ -64,6 +64,32 @@ export const speakableNode = () => ({
   cssSelector: ["[data-speakable]"],
 });
 
+// Full Person node for JSON-LD @graph. Use as the graph-level author so every
+// Article on the page can `author: { "@id": `${SITE.url}#person/<slug>` }`.
+// This is the single highest-leverage schema change for E-E-A-T: it tells
+// Google (and AI answer engines) that a real, linkable human wrote the piece.
+export const personNode = (authorSlug: string) => {
+  const a = getAuthor(authorSlug);
+  return {
+    "@type": "Person",
+    "@id": `${SITE.url}#person/${a.slug}`,
+    name: a.name,
+    url: a.url,
+    jobTitle: a.jobTitle,
+    description: a.description,
+    sameAs: a.sameAs,
+    worksFor: { "@id": `${SITE.url}#org` },
+    ...(a.image && { image: absoluteUrl(a.image) }),
+  };
+};
+
+// Lightweight reference used inside Article.author — keeps the node deduped
+// to the one personNode() we emit at the top of the graph.
+const authorRef = (authorSlug: string) => {
+  const a = getAuthor(authorSlug);
+  return { "@id": `${SITE.url}#person/${a.slug}` };
+};
+
 export const transportNode = (doc: { frontmatter: TransportDoc; url: string }) => {
   const fm = doc.frontmatter;
   const city = fm.from ? getCityEntity(fm.from) : undefined;
@@ -75,7 +101,7 @@ export const transportNode = (doc: { frontmatter: TransportDoc; url: string }) =
     image: fm.heroImage ? [absoluteUrl(fm.heroImage)] : [absoluteUrl(SITE.defaultOgImage)],
     datePublished: fm.published,
     dateModified: fm.updated ?? fm.published,
-    author: { "@type": "Person", name: fm.author },
+    author: authorRef(fm.author),
     publisher: { "@id": `${SITE.url}#org` },
     mainEntityOfPage: absoluteUrl(doc.url),
     inLanguage: "en",
@@ -118,7 +144,7 @@ export const articleNode = (doc: {
     image: fm.heroImage ? [absoluteUrl(fm.heroImage)] : [absoluteUrl(SITE.defaultOgImage)],
     datePublished: fm.published,
     dateModified: fm.updated ?? fm.published,
-    author: { "@type": "Person", name: fm.author },
+    author: authorRef(fm.author),
     publisher: { "@id": `${SITE.url}#org` },
     mainEntityOfPage: absoluteUrl(doc.url),
     inLanguage: "en",
@@ -234,10 +260,17 @@ export const buildPageGraph = (
   url: string,
   breadcrumbs: { name: string; url: string }[],
 ) => {
+  // Article-bearing page types emit a full Person node so `author` refs
+  // inside the Article resolve within the same graph (no dangling @id).
+  const emitsArticle =
+    fm.type === "guide" ||
+    fm.type === "compare" ||
+    fm.type === "transport";
   const nodes: Array<Record<string, unknown> | null | undefined> = [
     orgNode(),
     breadcrumbNode(breadcrumbs),
     faqNode(fm.faq),
+    emitsArticle ? personNode(fm.author) : null,
   ];
   switch (fm.type) {
     case "city":

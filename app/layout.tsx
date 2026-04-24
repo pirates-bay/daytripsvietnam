@@ -25,6 +25,11 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", site: SITE.twitter },
   robots: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  alternates: {
+    // Publishes the RSS feed to Feedly / Inoreader / NetNewsWire and any
+    // resource-page curator who watches for feeds — one more discovery path.
+    types: { "application/rss+xml": `${SITE.url}/rss.xml` },
+  },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",

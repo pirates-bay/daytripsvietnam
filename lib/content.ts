@@ -24,7 +24,12 @@ const baseFields = {
   summary: z.string().min(40).max(600),
   heroImage: z.string().startsWith("/").optional(),
   heroAlt: z.string().optional(),
-  author: z.string().default("editors"),
+  // Credit + source URL for reused imagery (e.g. Wikimedia Commons). Required
+  // by CC-BY licences and by journalist credibility checks — a visible
+  // attribution line beats a silent lift. Absent = photo is original.
+  heroCredit: z.string().optional(),
+  heroCreditUrl: z.string().url().optional(),
+  author: z.string().default("joy-nguyen"),
   published: z.string(),
   updated: z.string().optional(),
   tags: z.array(z.string()).default([]),
