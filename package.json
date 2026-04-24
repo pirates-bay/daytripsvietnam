@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "validate-content": "tsx scripts/validate-content.ts"
+    "validate-content": "tsx scripts/validate-content.ts",
+    "submit-indexnow": "tsx scripts/submit-indexnow.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
