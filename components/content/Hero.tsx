@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Hero({ eyebrow, title, summary, image, imageAlt }: {
   eyebrow?: string;
   title: string;
@@ -8,12 +10,13 @@ export function Hero({ eyebrow, title, summary, image, imageAlt }: {
   return (
     <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white">
       {image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={image}
           alt={imageAlt ?? ""}
-          className="absolute inset-0 h-full w-full object-cover opacity-60"
-          fetchPriority="high"
+          fill
+          className="object-cover opacity-60"
+          priority
+          sizes="100vw"
         />
       )}
       <div className="relative px-6 py-16 md:px-12 md:py-24">

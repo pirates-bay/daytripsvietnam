@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export interface TripCardProps {
@@ -18,14 +19,12 @@ export function TripCard({ href, title, blurb, image, imageAlt, duration, priceF
     >
       {image && (
         <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-          {/* Using plain img here so external/placeholder URLs work before Vercel image optimization */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={image}
             alt={imageAlt ?? title}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            fill
+            className="object-cover transition duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
       )}
