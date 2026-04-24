@@ -38,15 +38,37 @@ export function Footer() {
             <p className="font-semibold text-slate-900">Site</p>
             <ul className="mt-3 space-y-1.5">
               <li><Link href="/about/" className="hover:text-brand-700">About</Link></li>
+              <li><Link href="/press/" className="hover:text-brand-700">Press</Link></li>
               <li><Link href="/contact/" className="hover:text-brand-700">Contact</Link></li>
               <li><Link href="/sitemap.xml" className="hover:text-brand-700">Sitemap</Link></li>
+              <li><Link href="/rss.xml" className="hover:text-brand-700">RSS</Link></li>
               <li><Link href="/llms.txt" className="hover:text-brand-700">llms.txt</Link></li>
             </ul>
           </div>
         </div>
-        <p className="mt-10 border-t border-slate-200 pt-6 text-xs text-slate-500">
-          © {year} {SITE.name}. Independent travel guides. Not affiliated with any tour operator.
-        </p>
+        <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-slate-500">
+            © {year} {SITE.name}. Independent travel guides. Not affiliated with any tour operator.
+          </p>
+          <ul className="flex gap-4 text-xs">
+            {SITE.social.map((url) => {
+              const host = new URL(url).hostname.replace(/^www\./, "");
+              const label = host.split(".")[0];
+              return (
+                <li key={url}>
+                  <a
+                    href={url}
+                    rel="me noopener"
+                    target="_blank"
+                    className="capitalize text-slate-500 hover:text-brand-700"
+                  >
+                    {label}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </Container>
     </footer>
   );

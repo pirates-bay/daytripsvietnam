@@ -162,3 +162,60 @@ export const getCity = (slug: string): CityEntity | undefined =>
   CITIES[slug as CitySlug];
 
 export const isCitySlug = (slug: string): slug is CitySlug => slug in CITIES;
+
+// -----------------------------------------------------------------------------
+// Authors
+//
+// A named human byline is load-bearing for E-E-A-T and for any outreach that
+// involves a journalist or editor verifying who wrote the piece. Resolving
+// frontmatter `author` slugs through this map lets us keep MDX terse
+// (`author: joy-nguyen`) while emitting a full Person node in JSON-LD.
+// -----------------------------------------------------------------------------
+
+export interface AuthorEntity {
+  slug: string;
+  name: string;
+  /** Absolute URL to the author's bio page on this site. */
+  url: string;
+  /** Role title shown in the bio block and Person schema. */
+  jobTitle: string;
+  /** One-sentence descriptor for schema + bio cards. */
+  description: string;
+  /** External profiles — schema.org `sameAs` for identity verification. */
+  sameAs: string[];
+  /** Optional headshot path served from /public. */
+  image?: string;
+}
+
+export const AUTHORS = {
+  "joy-nguyen": {
+    slug: "joy-nguyen",
+    name: "Joy Nguyen",
+    url: "https://daytripsvietnam.com/about/",
+    jobTitle: "Editor",
+    description:
+      "Travel-content writer focused on Vietnam and research-backed travel guidance. Covers Hanoi, Ha Long Bay, Hoi An, and the Mekong Delta, turning complex routes and official rules into practical planning advice.",
+    sameAs: [
+      "https://joynguyenwrites.com/",
+      "https://www.linkedin.com/in/thao-nguyen-writing/",
+    ],
+  },
+} as const satisfies Record<string, AuthorEntity>;
+
+export type AuthorSlug = keyof typeof AUTHORS;
+
+// Legacy MDX frontmatter used `author: editors` before we moved to a named
+// byline. Rather than bulk-rewriting 80+ files (forbidden by CLAUDE.md without
+// explicit approval), we alias the legacy slug to the current editor so
+// Person schema + visible bylines surface Joy Nguyen everywhere.
+const LEGACY_AUTHOR_ALIASES: Record<string, AuthorSlug> = {
+  editors: "joy-nguyen",
+};
+
+export const getAuthor = (slug: string): AuthorEntity => {
+  const resolved = LEGACY_AUTHOR_ALIASES[slug] ?? slug;
+  return (
+    (AUTHORS as Record<string, AuthorEntity>)[resolved] ??
+    AUTHORS["joy-nguyen"]
+  );
+};
