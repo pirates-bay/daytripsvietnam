@@ -5,6 +5,7 @@ import { Container } from "./Container";
 const NAV = [
   { href: "/destinations/", label: "Destinations" },
   { href: "/itineraries/", label: "Itineraries" },
+  { href: "/transport/", label: "Transport" },
   { href: "/guides/", label: "Guides" },
   { href: "/about/", label: "About" },
 ];
