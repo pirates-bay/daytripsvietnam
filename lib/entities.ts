@@ -6,7 +6,15 @@ export type CitySlug =
   | "ho-chi-minh-city"
   | "da-nang"
   | "hoi-an"
-  | "hue";
+  | "hue"
+  | "phu-quoc"
+  | "da-lat"
+  | "mui-ne"
+  | "nha-trang"
+  | "phong-nha"
+  | "mekong-delta"
+  | "ha-giang"
+  | "cat-ba";
 
 export interface CityEntity {
   slug: CitySlug;
@@ -81,6 +89,70 @@ export const CITIES: Record<CitySlug, CityEntity> = {
     shortBlurb: "Imperial capital of the Nguyen dynasty on the Perfume River.",
     latitude: 16.4637,
     longitude: 107.5909,
+  },
+  "phu-quoc": {
+    slug: "phu-quoc",
+    name: "Phu Quoc",
+    region: "South",
+    shortBlurb: "Vietnam's largest tropical island — white-sand beaches, snorkelling, and resort stays.",
+    latitude: 10.2270,
+    longitude: 103.9638,
+  },
+  "da-lat": {
+    slug: "da-lat",
+    name: "Da Lat",
+    region: "Central",
+    shortBlurb: "Cool-climate mountain town of pine forests, French colonial villas, and coffee farms.",
+    latitude: 11.9404,
+    longitude: 108.4583,
+  },
+  "mui-ne": {
+    slug: "mui-ne",
+    name: "Mui Ne",
+    region: "South",
+    shortBlurb: "Red and white sand dunes, kitesurfing beaches, and fishing-village seafood.",
+    latitude: 10.9446,
+    longitude: 108.2880,
+  },
+  "nha-trang": {
+    slug: "nha-trang",
+    name: "Nha Trang",
+    region: "Central",
+    shortBlurb: "South-central beach resort with island-hopping boat tours and Cham towers.",
+    latitude: 12.2388,
+    longitude: 109.1967,
+  },
+  "phong-nha": {
+    slug: "phong-nha",
+    name: "Phong Nha",
+    region: "Central",
+    shortBlurb: "UNESCO karst park with the world's largest caves and jungle river trails.",
+    latitude: 17.5953,
+    longitude: 106.2839,
+  },
+  "mekong-delta": {
+    slug: "mekong-delta",
+    name: "Mekong Delta",
+    region: "South",
+    shortBlurb: "Fruit orchards, floating markets, and stilt-house homestays on Vietnam's rice-bowl delta.",
+    latitude: 10.0452,
+    longitude: 105.7469,
+  },
+  "ha-giang": {
+    slug: "ha-giang",
+    name: "Ha Giang",
+    region: "North",
+    shortBlurb: "The Ha Giang Loop — jagged limestone mountains and hill-tribe villages on Vietnam's Chinese border.",
+    latitude: 22.8241,
+    longitude: 104.9784,
+  },
+  "cat-ba": {
+    slug: "cat-ba",
+    name: "Cat Ba Island",
+    region: "North",
+    shortBlurb: "Largest island in Ha Long Bay — hiking, kayaking, and cheaper base for Lan Ha Bay cruises.",
+    latitude: 20.7234,
+    longitude: 107.0430,
   },
 };
 
