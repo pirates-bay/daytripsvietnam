@@ -81,6 +81,25 @@ export const compareSchema = z.object({
   b: z.string(),
 });
 
+// A Research article is a Guide plus metadata about the study it summarizes.
+// The source fields are *required* — a research page without a citable
+// primary source would violate CLAUDE.md's "don't invent facts" rule. The
+// frontmatter block is also what powers the schema.org `citation` property
+// on the emitted Article node, so AI answer engines can trace our figures
+// back to the original publisher. `topics` is a free-form array so adding
+// categories (e.g. "overtourism", "food-tourism") doesn't require a
+// schema migration.
+export const researchSchema = z.object({
+  type: z.literal("research"),
+  ...baseFields,
+  sourceTitle: z.string().min(3),
+  sourceOrg: z.string().min(2),
+  sourceUrl: z.string().url(),
+  sourcePublished: z.string(),
+  sourceType: z.enum(["government", "peer-reviewed", "industry", "ngo"]),
+  topics: z.array(z.string()).default([]),
+});
+
 export const transportSchema = z.object({
   type: z.literal("transport"),
   ...baseFields,
@@ -109,6 +128,7 @@ export const contentSchema = z.discriminatedUnion("type", [
   guideSchema,
   compareSchema,
   transportSchema,
+  researchSchema,
 ]);
 
 export type Frontmatter = z.infer<typeof contentSchema>;
@@ -119,6 +139,7 @@ export type ItineraryDoc = z.infer<typeof itinerarySchema>;
 export type GuideDoc = z.infer<typeof guideSchema>;
 export type CompareDoc = z.infer<typeof compareSchema>;
 export type TransportDoc = z.infer<typeof transportSchema>;
+export type ResearchDoc = z.infer<typeof researchSchema>;
 
 export interface ContentDoc<T extends Frontmatter = Frontmatter> {
   frontmatter: T;
@@ -194,6 +215,9 @@ export const getCompare = (pair: string): ContentDoc<CompareDoc> | undefined =>
 export const getTransport = (slug: string): ContentDoc<TransportDoc> | undefined =>
   getByType("transport").find((d) => d.frontmatter.slug === slug);
 
+export const getResearch = (slug: string): ContentDoc<ResearchDoc> | undefined =>
+  getByType("research").find((d) => d.frontmatter.slug === slug);
+
 export const getTransportByCategory = (
   category: TransportDoc["category"],
 ): Array<ContentDoc<TransportDoc>> =>
@@ -215,5 +239,7 @@ export const urlFor = (fm: Frontmatter): string => {
       return `/compare/${fm.slug}/`;
     case "transport":
       return `/transport/${fm.slug}/`;
+    case "research":
+      return `/research/${fm.slug}/`;
   }
 };
