@@ -9,6 +9,7 @@ const STATIC_PATHS = [
   "/transport/",
   "/guides/",
   "/research/",
+  "/compare/",
   "/about/",
   "/press/",
   "/contact/",
