@@ -8,6 +8,7 @@ import type {
   ThingToDoDoc,
   CompareDoc,
   TransportDoc,
+  ResearchDoc,
   Frontmatter,
 } from "./content";
 
@@ -152,6 +153,45 @@ export const articleNode = (doc: {
   };
 };
 
+// Research articles emit a superset of articleNode: same Article shape plus
+// a schema.org `citation` to the primary source. AI answer engines weight
+// content that can be traced back to a named study, and the citation block
+// is what lets them do that without parsing prose. `isBasedOn` is a
+// complementary property Google's article-richness guidelines recognise.
+export const researchNode = (doc: { frontmatter: ResearchDoc; url: string }) => {
+  const fm = doc.frontmatter;
+  const citation = {
+    "@type": "CreativeWork",
+    name: fm.sourceTitle,
+    url: fm.sourceUrl,
+    author: { "@type": "Organization", name: fm.sourceOrg },
+    datePublished: fm.sourcePublished,
+  };
+  return {
+    "@type": "Article",
+    headline: fm.h1 ?? fm.title,
+    description: fm.description,
+    image: fm.heroImage
+      ? [absoluteUrl(fm.heroImage)]
+      : [absoluteUrl(SITE.defaultOgImage)],
+    datePublished: fm.published,
+    dateModified: fm.updated ?? fm.published,
+    author: authorRef(fm.author),
+    publisher: { "@id": `${SITE.url}#org` },
+    mainEntityOfPage: absoluteUrl(doc.url),
+    inLanguage: "en",
+    speakable: speakableNode(),
+    articleSection: "Research",
+    citation,
+    isBasedOn: citation,
+    about: {
+      "@type": "Thing",
+      name: fm.sourceTitle,
+      url: fm.sourceUrl,
+    },
+  };
+};
+
 export const touristDestinationNode = (doc: { frontmatter: CityDoc; url: string }) => {
   const fm = doc.frontmatter;
   const city = getCityEntity(fm.city);
@@ -265,7 +305,8 @@ export const buildPageGraph = (
   const emitsArticle =
     fm.type === "guide" ||
     fm.type === "compare" ||
-    fm.type === "transport";
+    fm.type === "transport" ||
+    fm.type === "research";
   const nodes: Array<Record<string, unknown> | null | undefined> = [
     orgNode(),
     breadcrumbNode(breadcrumbs),
@@ -293,6 +334,9 @@ export const buildPageGraph = (
       break;
     case "transport":
       nodes.push(transportNode({ frontmatter: fm, url }));
+      break;
+    case "research":
+      nodes.push(researchNode({ frontmatter: fm, url }));
       break;
   }
   return buildGraph(nodes);
