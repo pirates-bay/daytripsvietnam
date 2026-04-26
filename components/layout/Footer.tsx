@@ -30,6 +30,8 @@ export function Footer() {
             <ul className="mt-3 space-y-1.5">
               <li><Link href="/itineraries/" className="hover:text-brand-700">Itineraries</Link></li>
               <li><Link href="/guides/" className="hover:text-brand-700">Guides</Link></li>
+              <li><Link href="/research/" className="hover:text-brand-700">Research</Link></li>
+              <li><Link href="/compare/" className="hover:text-brand-700">Compare</Link></li>
               <li><Link href="/guides/best-time-to-visit-vietnam/" className="hover:text-brand-700">Best time to visit</Link></li>
               <li><Link href="/guides/vietnam-visa/" className="hover:text-brand-700">Visa</Link></li>
             </ul>
